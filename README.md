@@ -1,160 +1,140 @@
-# TSDX React User Guide
+# @dinkarjallan/rezilient-utils
 
-Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.
+A utility library for building resilient, offline-first applications by providing tools for managing frontend logic and handling complex operations. This package is a core part of the **Rezilient.js** ecosystem, designed to enable powerful offline and network-resilient functionality.
 
-> This TSDX setup is meant for developing React component libraries (not apps!) that can be published to NPM. If you’re looking to build a React-based app, you should use `create-react-app`, `razzle`, `nextjs`, `gatsby`, or `react-static`.
+---
 
-> If you’re new to TypeScript and React, checkout [this handy cheatsheet](https://github.com/sw-yx/react-typescript-cheatsheet/)
+## What is `rezilient-utils`?
 
-## Commands
+**`@dinkarjallan/rezilient-utils`** provides a collection of utilities for handling the non-UI aspects of offline-ready applications. It focuses on logic-heavy operations, such as worker thread management, local storage synchronization, retry/queue handling, and network-aware decision-making. It works seamlessly alongside **@dinkarjallan/rezilient-ui**.
 
-TSDX scaffolds your new library inside `/src`, and also sets up a [Parcel-based](https://parceljs.org) playground for it inside `/example`.
+---
 
-The recommended workflow is to run TSDX in one terminal:
+## What to Expect from This Package
 
-```bash
-npm start # or yarn start
-```
+- Decorators to enable worker thread execution for intensive functions.
+- Local storage and IndexedDB management tools for state persistence.
+- Retry and queue management functions for API calls and offline actions.
+- Error handling utilities for offline-related issues.
+- Tools to estimate and act on network strength.
+- Offline mode detection and reconciliation utilities.
 
-This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
+---
 
-Then run the example inside another:
+## Features and Examples
 
-```bash
-cd example
-npm i # or yarn to install dependencies
-npm start # or yarn start
-```
+### 1. Worker Thread Decorators (for Functions)
 
-The default example imports and live reloads whatever is in `/dist`, so if you are seeing an out of date component, make sure TSDX is running in watch mode like we recommend above. **No symlinking required**, we use [Parcel's aliasing](https://parceljs.org/module_resolution.html#aliases).
+Enable functions to execute in worker threads for better performance and responsiveness.
 
-To do a one-off build, use `npm run build` or `yarn build`.
+```javascript
+import { runInWorkerThread } from '@dinkarjallan/rezilient-utils';
 
-To run tests, use `npm test` or `yarn test`.
-
-## Configuration
-
-Code quality is set up for you with `prettier`, `husky`, and `lint-staged`. Adjust the respective fields in `package.json` accordingly.
-
-### Jest
-
-Jest tests are set up to run with `npm test` or `yarn test`.
-
-### Bundle analysis
-
-Calculates the real cost of your library using [size-limit](https://github.com/ai/size-limit) with `npm run size` and visulize it with `npm run analyze`.
-
-#### Setup Files
-
-This is the folder structure we set up for you:
-
-```txt
-/example
-  index.html
-  index.tsx       # test your component here in a demo app
-  package.json
-  tsconfig.json
-/src
-  index.tsx       # EDIT THIS
-/test
-  blah.test.tsx   # EDIT THIS
-.gitignore
-package.json
-README.md         # EDIT THIS
-tsconfig.json
-```
-
-#### React Testing Library
-
-We do not set up `react-testing-library` for you yet, we welcome contributions and documentation on this.
-
-### Rollup
-
-TSDX uses [Rollup](https://rollupjs.org) as a bundler and generates multiple rollup configs for various module formats and build settings. See [Optimizations](#optimizations) for details.
-
-### TypeScript
-
-`tsconfig.json` is set up to interpret `dom` and `esnext` types, as well as `react` for `jsx`. Adjust according to your needs.
-
-## Continuous Integration
-
-### GitHub Actions
-
-Two actions are added by default:
-
-- `main` which installs deps w/ cache, lints, tests, and builds on all pushes against a Node and OS matrix
-- `size` which comments cost comparison of your library on every pull request using [`size-limit`](https://github.com/ai/size-limit)
-
-## Optimizations
-
-Please see the main `tsdx` [optimizations docs](https://github.com/palmerhq/tsdx#optimizations). In particular, know that you can take advantage of development-only optimizations:
-
-```js
-// ./types/index.d.ts
-declare var __DEV__: boolean;
-
-// inside your code...
-if (__DEV__) {
-  console.log('foo');
+@runInWorkerThread
+function processData(data) {
+  // Perform complex data processing
 }
 ```
 
-You can also choose to install and use [invariant](https://github.com/palmerhq/tsdx#invariant) and [warning](https://github.com/palmerhq/tsdx#warning) functions.
+---
 
-## Module Formats
+### 2. Local Storage Management
 
-CJS, ESModules, and UMD module formats are supported.
+Manage and synchronize application state with `localStorage` or `IndexedDB`.
 
-The appropriate paths are configured in `package.json` and `dist/index.js` accordingly. Please report if any issues are found.
+- **Redux Middleware**: Automatically sync specific Redux slices with local storage.
 
-## Deploying the Example Playground
+```javascript
+import { createLocalStorageMiddleware } from '@dinkarjallan/rezilient-utils';
 
-The Playground is just a simple [Parcel](https://parceljs.org) app, you can deploy it anywhere you would normally deploy that. Here are some guidelines for **manually** deploying with the Netlify CLI (`npm i -g netlify-cli`):
-
-```bash
-cd example # if not already in the example folder
-npm run build # builds to dist
-netlify deploy # deploy the dist folder
+const middleware = createLocalStorageMiddleware(['userSession', 'cart']);
 ```
 
-Alternatively, if you already have a git repo connected, you can set up continuous deployment with Netlify:
+---
 
-```bash
-netlify init
-# build command: yarn build && cd example && yarn && yarn build
-# directory to deploy: example/dist
-# pick yes for netlify.toml
+### 3. Retry/Queue Management
+
+Handle queued API calls and retry operations with prioritization and batching capabilities.
+
+```javascript
+import {
+  enqueueAPICall,
+  retryFailedCalls,
+} from '@dinkarjallan/rezilient-utils';
+
+// Queue an API call
+enqueueAPICall('/api/save', { data: payload });
+
+// Retry all failed calls
+retryFailedCalls();
 ```
 
-## Named Exports
+---
 
-Per Palmer Group guidelines, [always use named exports.](https://github.com/palmerhq/typescript#exports) Code split inside your React app instead of your React library.
+### 4. Error Handling Utilities
 
-## Including Styles
+Plug offline-related error handlers into your `catch` blocks for graceful handling.
 
-There are many ways to ship styles, including with CSS-in-JS. TSDX has no opinion on this, configure how you like.
+```javascript
+import { handleOfflineError } from '@dinkarjallan/rezilient-utils';
 
-For vanilla CSS, you can include it at the root directory and add it to the `files` section in your `package.json`, so that it can be imported separately by your users and run through their bundler's loader.
-
-## Publishing to NPM
-
-We recommend using [np](https://github.com/sindresorhus/np).
-
-## Usage with Lerna
-
-When creating a new package with TSDX within a project set up with Lerna, you might encounter a `Cannot resolve dependency` error when trying to run the `example` project. To fix that you will need to make changes to the `package.json` file _inside the `example` directory_.
-
-The problem is that due to the nature of how dependencies are installed in Lerna projects, the aliases in the example project's `package.json` might not point to the right place, as those dependencies might have been installed in the root of your Lerna project.
-
-Change the `alias` to point to where those packages are actually installed. This depends on the directory structure of your Lerna project, so the actual path might be different from the diff below.
-
-```diff
-   "alias": {
--    "react": "../node_modules/react",
--    "react-dom": "../node_modules/react-dom"
-+    "react": "../../../node_modules/react",
-+    "react-dom": "../../../node_modules/react-dom"
-   },
+try {
+  await fetchData();
+} catch (error) {
+  handleOfflineError(error);
+}
 ```
 
-An alternative to fixing this problem would be to remove aliases altogether and define the dependencies referenced as aliases as dev dependencies instead. [However, that might cause other problems.](https://github.com/palmerhq/tsdx/issues/64)
+---
+
+### 5. Network Strength Utilities
+
+Estimate network conditions and execute logic based on strength.
+
+```javascript
+import { getNetworkStrength } from '@dinkarjallan/rezilient-utils';
+
+if (getNetworkStrength() === 'weak') {
+  alert('Sync postponed due to weak network');
+}
+```
+
+---
+
+### 6. Offline Mode Detection and State Reconciliation
+
+Detect offline mode and reconcile local data with server-side data.
+
+```javascript
+import {
+  enableOfflineMode,
+  reconcileData,
+} from '@dinkarjallan/rezilient-utils';
+
+// Enable offline mode
+enableOfflineMode();
+
+// Reconcile data
+reconcileData(localData, serverData);
+```
+
+---
+
+## Why Use `rezilient-utils`?
+
+- **Logic-Driven Resilience:** Enhance the performance and reliability of your application's logic layer.
+- **Effortless State Management:** Simplify state persistence and reconciliation with battle-tested tools.
+- **Network-Aware Operations:** Adapt your application's behavior dynamically to network conditions.
+- **Seamless Integration:** Designed to work alongside **@dinkarjallan/rezilient-ui** for a full offline-first solution.
+
+---
+
+## Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to open an issue or submit a pull request.
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
