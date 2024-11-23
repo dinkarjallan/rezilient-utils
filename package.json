@@ -36,6 +36,25 @@
   "name": "@dinkarjallan/rezilient-utils",
   "author": "dinkarjallan",
   "module": "dist/rezilient-utils.esm.js",
+  "keywords": [
+    "offline-first",
+    "rezilient app",
+    "rezilientjs",
+    "network-management",
+    "retry",
+    "queue-management",
+    "error-handling",
+    "local-storage",
+    "indexeddb",
+    "service workers",
+    "worker threads",
+    "network",
+    "network detection",
+    "frontend-utils",
+    "state-reconciliation",
+    "offline-detection",
+    "background sync"
+  ],
   "size-limit": [
     {
       "path": "dist/rezilient-utils.cjs.production.min.js",
